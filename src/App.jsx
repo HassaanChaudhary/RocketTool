@@ -40,7 +40,7 @@ function App() {
             const res = await fetch('http://178.104.148.252:5678/webhook/provision-client', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
+              body: JSON.stringify({ client_name: payload.username }),
             })
             if (!res.ok) throw new Error('Webhook failed')
             setCurrentPage('home')
