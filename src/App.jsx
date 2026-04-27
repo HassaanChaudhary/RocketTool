@@ -38,7 +38,7 @@ function App() {
           <RegisterForm onSubmit={async (data) => {
   const { profilePicture, ...payload } = data
   console.log('Submitting payload:', payload)
-  const res = await fetch('http://178.104.148.252:5678/webhook/provision-client', {
+  const res = await fetch('https://n8n.178.104.148.252.nip.io/webhook/provision-client', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ client_name: payload.username }),
