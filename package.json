@@ -12,6 +12,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
+    "@supabase/supabase-js": "^2.105.0",
     "ag-grid-community": "^35.1.0",
     "ag-grid-react": "^35.1.0",
     "react": "^19.2.0",
