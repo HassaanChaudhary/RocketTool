@@ -5,6 +5,21 @@ import { supabase } from '../supabase-client'
 
 const modules = [AllCommunityModule]
 
+function StudioLinkCell(params) {
+  if (!params.value) return <span style={{ color: '#aaa' }}>Not available</span>
+  return (
+    
+    <a
+      href={params.value}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{ color: '#6BC48E', fontWeight: 'bold', textDecoration: 'underline' }}
+    >
+      Open Studio
+    </a>
+  )
+}
+
 function Home({ setCurrentPage }) {
   const [rowData, setRowData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -36,24 +51,7 @@ function Home({ setCurrentPage }) {
     { field: 'Business_name', headerName: 'Business Name', flex: 1 },
     { field: 'Client_name',   headerName: 'Client Name',   flex: 1 },
     { field: 'email',         headerName: 'Email',         flex: 1 },
-    {
-      field: 'studio_url',
-      headerName: 'Studio URL',
-      flex: 1,
-      cellRenderer: (params) => {
-        if (!params.value) return <span style={{ color: '#aaa' }}>Not available</span>
-        return (
-          
-            href={params.value}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: '#6BC48E', fontWeight: 'bold', textDecoration: 'underline' }}
-          >
-            Open Studio
-          </a>
-        )
-      },
-    },
+    { field: 'studio_url',    headerName: 'Studio URL',    flex: 1, cellRenderer: StudioLinkCell },
   ]
 
   return (
