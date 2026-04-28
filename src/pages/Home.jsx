@@ -1,63 +1,103 @@
 import { AllCommunityModule } from 'ag-grid-community'
 import { AgGridProvider, AgGridReact } from 'ag-grid-react'
 import { useState, useEffect } from 'react'
-import { supabase } from '../superbase-client'
-import '../index.css'
+import { supabase } from '../supabase-client'
 
 const modules = [AllCommunityModule]
 
-
 function Home({ setCurrentPage }) {
-    // getting the data from Supabase
-  useEffect(() => {
-    const fetchData = async () => {
-      const { data, error } = await supabase
-        .from("Users")
-        .select("*")
-        .order("created_at", { ascending: false })
+  const [rowData, setRowData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(null)
 
-      console.log("Fetched data:", data)  
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+      setFetchError(null)
+
+      const { data, error } = await supabase
+        .from('Users')
+        .select('*')
+        .order('created_at', { ascending: false })
+
       if (error) {
-        console.error("Error fetching data:", error)
+        setFetchError('Failed to load users: ' + error.message)
       } else {
-        setData(data)
+        setRowData(data)
       }
+
+      setLoading(false)
     }
 
     fetchData()
   }, [])
 
-  const [rowData, setData] = useState([
-    { id: "1", Business_name: "Loading...", Client_name: "Loading...", email: "Loading..." },
-  ])
-
-  const [colDefs] = useState([
-    { field: "Business_name", flex: 1 },
-    { field: "Client_name", flex: 1 },
-    { field: "email", flex: 1 },
+  const colDefs = [
+    { field: 'Business_name', headerName: 'Business Name', flex: 1 },
+    { field: 'Client_name',   headerName: 'Client Name',   flex: 1 },
+    { field: 'email',         headerName: 'Email',         flex: 1 },
     {
-      headerName: "",
-      width: 120,
-      cellRenderer: () => (
-        // className="rocket-btn" does not work for now
-        // TODO: make this button look better and add functionality to it. it should take the user to a page with more details about the task and the client
-        <button className="rocket-btn" style={{ padding: '0.0rem 0.5rem', backgroundColor: 'white', color: '#6BC48E', border: '0px solid #6BC48E', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>
-          Details
-        </button>
-      ),
+      field: 'studio_url',
+      headerName: 'Studio URL',
+      flex: 1,
+      cellRenderer: (params) => {
+        if (!params.value) return <span style={{ color: '#aaa' }}>Not available</span>
+        return (
+          
+            href={params.value}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: '#6BC48E', fontWeight: 'bold', textDecoration: 'underline' }}
+          >
+            Open Studio
+          </a>
+        )
+      },
     },
-  ])
+  ]
 
   return (
     <AgGridProvider modules={modules}>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '2rem', boxSizing: 'border-box'}}>
-        <div className='flex items-center justify-between mb-4'>
-            <h1 className='text-2xl font-bold'>User List</h1>
-            <button onClick={() => setCurrentPage('register')} style={{ padding: '0.5rem 1rem', backgroundColor: '#6BC48E', color: '#0E2240', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}>Create a new User</button>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '2rem', boxSizing: 'border-box' }}>
+
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold">User List</h1>
+          <button
+            onClick={() => setCurrentPage('register')}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#6BC48E',
+              color: '#0E2240',
+              border: 'none',
+              borderRadius: '4px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+            }}
+          >
+            + Create New Client
+          </button>
         </div>
-        <div style={{ flex: 1 }}>
-          <AgGridReact rowData={rowData} columnDefs={colDefs} />
-        </div>
+
+        {fetchError && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            ⚠️ {fetchError}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="flex flex-1 items-center justify-center text-gray-400 text-sm">
+            Loading clients…
+          </div>
+        ) : (
+          <div style={{ flex: 1 }}>
+            <AgGridReact
+              rowData={rowData}
+              columnDefs={colDefs}
+              overlayNoRowsTemplate="<span style='color: #888'>No clients yet. Create one to get started.</span>"
+            />
+          </div>
+        )}
+
       </div>
     </AgGridProvider>
   )
