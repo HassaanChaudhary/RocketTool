@@ -38,9 +38,9 @@ function App() {
             console.log('Submitting payload:', payload)
 
             await supabase.from('Users').insert([{
-              business_name: payload.username,
-              client_name: payload.firstName + ' ' + payload.lastName,
-              email: payload.email
+              Business_name: payload.username,
+              Client_name: payload.firstName + ' ' + payload.lastName,
+              email: payload.email,
             }])
 
             const res = await fetch('https://n8n.178.104.148.252.nip.io/webhook/provision-client', {
