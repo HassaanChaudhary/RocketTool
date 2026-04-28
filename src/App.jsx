@@ -1,12 +1,10 @@
-
-
-import React, { useState, useEffect } from 'react'
-import { supabase } from './superbase-client'
-import Auth from './pages/Auth'
-import Navbar from './components/Navbar'
-import Home from './pages/Home'
-import Form from './pages/Form'
-import RegisterForm from './pages/RegisterForm'
+import { useState, useEffect } from "react"
+import Auth from "./pages/Auth"
+import Home from "./pages/Home"
+import Form from "./pages/Form"
+import RegisterForm from "./pages/RegisterForm"
+import Navbar from "./components/Navbar"
+import { supabase } from "./supabase-client"
 
 function App() {
   const [session, setSession] = useState(null)
@@ -36,16 +34,23 @@ function App() {
       {currentPage === 'register' && (
         <div className="flex-1 overflow-y-auto bg-gray-50 p-6">
           <RegisterForm onSubmit={async (data) => {
-  const { profilePicture, ...payload } = data
-  console.log('Submitting payload:', payload)
-  const res = await fetch('https://n8n.178.104.148.252.nip.io/webhook/provision-client', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ client_name: payload.username }),
-  })
-  if (!res.ok) throw new Error('Webhook failed')
-  setCurrentPage('home')
-}} />
+            const { profilePicture, ...payload } = data
+            console.log('Submitting payload:', payload)
+
+            await supabase.from('Users').insert([{
+              business_name: payload.username,
+              client_name: payload.firstName + ' ' + payload.lastName,
+              email: payload.email
+            }])
+
+            const res = await fetch('https://n8n.178.104.148.252.nip.io/webhook/provision-client', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ client_name: payload.username }),
+            })
+            if (!res.ok) throw new Error('Webhook failed')
+            setCurrentPage('home')
+          }} />
         </div>
       )}
     </div>
